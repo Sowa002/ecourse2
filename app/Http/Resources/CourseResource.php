@@ -22,7 +22,7 @@ class CourseResource extends JsonResource
             'level' => $this->level,
             'price' => $this->price,
             'premium' => $this->premium,
-            'category' => new CategoriesResource($this->whenLoaded('category')),
+            'category' => new CategoryResource($this->whenLoaded('category')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
