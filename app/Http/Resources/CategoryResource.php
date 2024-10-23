@@ -19,7 +19,7 @@ class CategoryResource extends JsonResource
             'category_name' => $this->category_name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'courses' => CourseResource::collection($this->whenLoaded('course')),
+            'course' => CourseResource::collection($this->whenLoaded('course')),
         ];
     }
 }
