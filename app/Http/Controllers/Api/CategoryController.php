@@ -3,40 +3,43 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\DTOs\Request\CategoryRequestDTO;
+use App\DTOs\Response\CategoryResponseDTO;
 
 class CategoryController extends Controller
 {
     public function index()
     {
         $categories = Category::with('course')->get();
-        return CategoryResource::collection($categories);
+        return response()->json(CategoryResponseDTO::success($categories), 200);
     }
 
     public function show($id)
     {
         $category = Category::with('course')->findOrFail($id);
-        return new CategoryResource($category);
+        return response()->json(CategoryResponseDTO::success($category), 200);
     }
 
     public function store(Request $request)
     {
-        $category = Category::create($request->all());
-        return new CategoryResource($category);
+        $categoryDTO = CategoryRequestDTO::fromRequest($request);
+        $category = Category::create((array) $categoryDTO);
+        return response()->json(CategoryResponseDTO::success($category), 201);
     }
 
     public function update(Request $request, $id)
     {
+        $categoryDTO = CategoryRequestDTO::fromRequest($request);
         $category = Category::findOrFail($id);
-        $category->update($request->all());
-        return new CategoryResource($category);
+        $category->update((array) $categoryDTO);
+        return response()->json(CategoryResponseDTO::success($category), 200);
     }
 
     public function destroy($id)
     {
         Category::findOrFail($id)->delete();
-        return response()->json(null, 204);
+        return response()->json(['status' => 'success', 'data' => null], 204);
     }
 }
