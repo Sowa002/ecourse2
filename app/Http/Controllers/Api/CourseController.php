@@ -24,17 +24,25 @@ class CourseController extends Controller
 
     public function store(Request $request)
     {
-        $courseDTO = CourseRequestDTO::fromRequest($request);
-        $course = Course::create((array) $courseDTO);
-        return response()->json(CourseResponseDTO::success($course), 201);
+        try {
+            $courseDTO = CourseRequestDTO::fromRequest($request);
+            $course = Course::create((array) $courseDTO);
+            return response()->json(CourseResponseDTO::success($course), 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $courseDTO = CourseRequestDTO::fromRequest($request);
-        $course = Course::findOrFail($id);
-        $course->update((array) $courseDTO);
-        return response()->json(CourseResponseDTO::success($course), 200);
+        try {
+            $courseDTO = CourseRequestDTO::fromRequest($request);
+            $course = Course::findOrFail($id);
+            $course->update((array) $courseDTO);
+            return response()->json(CourseResponseDTO::success($course), 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     }
 
     public function destroy($id)

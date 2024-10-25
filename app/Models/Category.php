@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    protected $fillable = ['category_name'];
     public function course(): HasMany{
-        return $this->hasMany(Course::class);
+        return $this->hasMany(Course::class, 'category_id');
     }
 }

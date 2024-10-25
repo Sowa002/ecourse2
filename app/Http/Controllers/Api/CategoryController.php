@@ -24,18 +24,29 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $categoryDTO = CategoryRequestDTO::fromRequest($request);
-        $category = Category::create((array) $categoryDTO);
-        return response()->json(CategoryResponseDTO::success($category), 201);
+        try {
+            $categoryDTO = CategoryRequestDTO::fromRequest($request);
+            $category = Category::create((array) $categoryDTO);
+            return response()->json(CategoryResponseDTO::success($category), 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     }
-
+    
     public function update(Request $request, $id)
     {
-        $categoryDTO = CategoryRequestDTO::fromRequest($request);
-        $category = Category::findOrFail($id);
-        $category->update((array) $categoryDTO);
-        return response()->json(CategoryResponseDTO::success($category), 200);
+        try {
+            $categoryDTO = CategoryRequestDTO::fromRequest($request);
+            $category = Category::findOrFail($id);
+            $category->update((array) $categoryDTO);
+            return response()->json(CategoryResponseDTO::success($category), 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     }
+    
+    
+    
 
     public function destroy($id)
     {

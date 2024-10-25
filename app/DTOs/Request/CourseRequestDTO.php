@@ -3,6 +3,7 @@
 namespace App\DTOs\Request;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CourseRequestDTO
 {
@@ -16,7 +17,19 @@ class CourseRequestDTO
 
     public static function fromRequest(Request $request)
     {
-        $request->validate([
+        $messages = [
+            'course_code.required' => 'The course code is required.',
+            'course_code.unique' => 'The course code is already taken. Please use a different course code.',
+            'class_name.required' => 'The class name is required.',
+            'description.required' => 'The description is required.',
+            'level.required' => 'The level is required.',
+            'price.required' => 'The price is required.',
+            'price.numeric' => 'The price must be a number.',
+            'category_id.required' => 'The category ID is required.',
+            'category_id.exists' => 'The category ID must exist in the categories table.',
+        ];
+
+        $validatedData = Validator::make($request->all(), [
             'course_code' => 'required|string|max:5|unique:courses,course_code',
             'class_name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -24,17 +37,9 @@ class CourseRequestDTO
             'price' => 'required|numeric',
             'premium' => 'boolean',
             'category_id' => 'required|exists:categories,id',
-        ]);
+        ], $messages)->validate();
 
-        return new self([
-            'course_code' => $request->input('course_code'),
-            'class_name' => $request->input('class_name'),
-            'description' => $request->input('description'),
-            'level' => $request->input('level'),
-            'price' => $request->input('price'),
-            'premium' => $request->input('premium'),
-            'category_id' => $request->input('category_id'),
-        ]);
+        return new self($validatedData);
     }
 
     public function __construct(array $data)

@@ -3,6 +3,7 @@
 namespace App\DTOs\Request;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryRequestDTO
 {
@@ -10,13 +11,19 @@ class CategoryRequestDTO
 
     public static function fromRequest(Request $request)
     {
-        $request->validate([
-            'category_name' => 'required|string|max:255',
-        ]);
+        $messages = [
+            'category_name.required' => 'The category name is required.',
+        ];
 
-        return new self([
-            'category_name' => $request->input('category_name'),
-        ]);
+        $validator = Validator::make($request->all(), [
+            'category_name' => 'required|string|max:255',
+        ], $messages);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+
+        return new self($validator->validated());
     }
 
     public function __construct(array $data)
