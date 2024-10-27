@@ -13,6 +13,7 @@ Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('courses', [CourseController::class, 'index']);
 Route::get('courses/{id}', [CourseController::class, 'show']);
+Route::get('/courses/search/{class_name}', [CourseController::class, 'searchByClassName']);
 Route::post('courses', [CourseController::class, 'store']);
 Route::put('courses/{id}', [CourseController::class, 'update']);
 Route::delete('courses/{id}', [CourseController::class, 'destroy']);
