@@ -47,8 +47,8 @@ class CourseController extends Controller
 
     public function show($id)
     {
-        $course = Course::with('category')->findOrFail($id);
-        
+        $course = Course::with(['category', 'chapters'])->findOrFail($id);
+
         $data = [
             'id' => $course->id,
             'course_code' => $course->course_code,
@@ -63,9 +63,15 @@ class CourseController extends Controller
             ],
             'created_at' => $course->created_at,
             'updated_at' => $course->updated_at,
+            'chapters' => $course->chapters->map(function ($chapter) {
+                return [
+                    'id' => $chapter->id,
+                    'chapter_number' => $chapter->chapter_number,
+                    'chapter_name' => $chapter->chapter_name,
+                ];
+            }),
         ];
-    
-        // Mengembalikan resource kursus
+
         return new CourseResource(true, 'Course retrieved successfully', $data);
     }
 
