@@ -7,6 +7,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryResource extends JsonResource
 {
+
+    public $status;
+    public $message;
+    public $resource;
+
+    public function __construct($status, $message, $resource){
+        parent::__construct($resource);
+        $this->status = $status;
+        $this->message = $message;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -15,11 +26,9 @@ class CategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'category_name' => $this->category_name,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'course' => CourseResource::collection($this->whenLoaded('course')),
+            'success' => $this->status,
+            'message' => $this->message,
+            'data' => $this->resource
         ];
     }
 }
