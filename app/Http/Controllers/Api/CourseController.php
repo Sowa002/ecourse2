@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
-use App\DTOs\Request\CourseRequestDTO;
-use App\DTOs\Response\CourseResponseDTO;
 use App\Http\Resources\CourseResource;
 use Illuminate\Support\Facades\Validator;
 
