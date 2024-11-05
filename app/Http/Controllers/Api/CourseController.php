@@ -164,7 +164,12 @@ class CourseController extends Controller
 
     public function destroy($id)
     {
-        Course::findOrFail($id)->delete();
+        // Temukan course berdasarkan ID
+        $course = Course::findOrFail($id);
+
+        // Hapus course yang akan otomatis menghapus chapters dan videos
+        $course->delete();
+
         return new CourseResource(true, 'Course deleted successfully', null);
     }
 }

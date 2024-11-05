@@ -24,7 +24,16 @@ class Course extends Model
         parent::boot();
 
         static::creating(function ($course) {
-            $course->course_code = strtoupper(Str::random(5)); // Menghasilkan kode acak 5 karakter
+            $course->course_code = strtoupper(Str::random(5));
+        });
+
+        static::deleting(function ($course) {
+            $course->chapters()->each(function ($chapter) {
+                if ($chapter->videos()->exists()) {
+                    $chapter->videos()->delete();
+                }
+                $chapter->delete();
+            });
         });
     }
 
