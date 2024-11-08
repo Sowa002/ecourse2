@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
-use App\DTOs\Request\CourseRequestDTO;
-use App\DTOs\Response\CourseResponseDTO;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CourseController extends Controller
 {
@@ -166,7 +165,16 @@ class CourseController extends Controller
 
     public function destroy($id)
     {
-        Course::findOrFail($id)->delete();
-        return new CourseResource(true, 'Course deleted successfully', null);
+        try {
+            // Temukan course berdasarkan ID atau lempar exception jika tidak ditemukan
+            $course = Course::findOrFail($id);
+    
+            // Hapus course yang akan otomatis menghapus chapters dan videos
+            $course->delete();
+    
+            return new CourseResource(true, 'Course deleted successfully', null);
+        } catch (ModelNotFoundException $e) {
+            return new CourseResource(false, 'Failed to delete course because ' . $e ,  null);
+        }
     }
 }

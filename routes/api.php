@@ -20,6 +20,7 @@ Route::put('courses/{id}', [CourseController::class, 'update']);
 Route::delete('courses/{id}', [CourseController::class, 'destroy']);
 
 Route::post('chapters', [ChapterController::class, 'create']);
+Route::put('chapters/{chapter_id}', [ChapterController::class, 'update']);
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {

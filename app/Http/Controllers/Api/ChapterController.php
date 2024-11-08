@@ -31,14 +31,27 @@ class ChapterController extends Controller
 
     }
 
-    public function edit(string $id)
-    {
-        //
-    }
-
     public function update(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'chapter_name' => 'required|string|max:20',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
+        $chapter = Chapter::find($id);
+
+        if (!$chapter) {
+            return response()->json(['message' => 'Chapter not found.'], 404);
+        }
+
+        $chapter->update([
+            'chapter_name' => $request->chapter_name
+        ]);
+
+        return new ChapterResource(true, 'Chapter updated successfully', $chapter);
     }
 
     public function destroy(string $id)
