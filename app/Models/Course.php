@@ -6,9 +6,12 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Course extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'course_code',
         'class_name',
@@ -37,11 +40,13 @@ class Course extends Model
         });
     }
 
-    public function category(): BelongsTo{
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function chapters(): HasMany{
+    public function chapters(): HasMany
+    {
         return $this->hasMany(Chapter::class);
     }
 }

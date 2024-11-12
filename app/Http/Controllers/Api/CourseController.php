@@ -13,40 +13,40 @@ class CourseController extends Controller
 {
     public function index()
     {
-    $courses = Course::with('category')->paginate(2);
-    $data = $courses->items();
-    $data = array_map(function ($item) {
-        return [
-            'id' => $item->id,
-            'course_code' => $item->course_code,
-            'class_name' => $item->class_name,
-            'description' => $item->description,
-            'level' => $item->level,
-            'price' => $item->price,
-            'premium' => $item->premium,
-            'category' => [
-                'id' => $item->category->id,
-                'category_name' => $item->category->category_name,
-            ],
-            'created_at' => $item->created_at,
-            'updated_at' => $item->updated_at,
-        ];
-    }, $data);
+        $courses = Course::with('category')->paginate(2);
+        $data = $courses->items();
+        $data = array_map(function ($item) {
+            return [
+                'id' => $item->id,
+                'course_code' => $item->course_code,
+                'class_name' => $item->class_name,
+                'description' => $item->description,
+                'level' => $item->level,
+                'price' => $item->price,
+                'premium' => $item->premium,
+                'category' => [
+                    'id' => $item->category->id,
+                    'category_name' => $item->category->category_name,
+                ],
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at,
+            ];
+        }, $data);
 
-    $paginatedData = [
-        'current_page' => $courses->currentPage(),
-        'per_page' => $courses->perPage(),
-        'total' => $courses->total(),
-        'last_page' => $courses->lastPage(),
-        'data' => $data,
-    ];
-    
+        $paginatedData = [
+            'current_page' => $courses->currentPage(),
+            'per_page' => $courses->perPage(),
+            'total' => $courses->total(),
+            'last_page' => $courses->lastPage(),
+            'data' => $data,
+        ];
+        
         return new CourseResource(true, 'Courses retrieved successfully', $paginatedData);
     }
 
     public function show($id)
     {
-        $course = Course::with(['category', 'chapters'])->findOrFail($id);
+        $course = Course::with(['category', 'chapters.videos'])->findOrFail($id);
 
         $data = [
             'id' => $course->id,
@@ -67,6 +67,13 @@ class CourseController extends Controller
                     'id' => $chapter->id,
                     'chapter_number' => $chapter->chapter_number,
                     'chapter_name' => $chapter->chapter_name,
+                    'videos' => $chapter->videos->map(function ($video) {
+                        return [
+                            'id' => $video->id,
+                            'video_title' => $video->title,
+                            'video_url' => $video->url,
+                        ];
+                    }),
                 ];
             }),
         ];
@@ -166,15 +173,13 @@ class CourseController extends Controller
     public function destroy($id)
     {
         try {
-            // Temukan course berdasarkan ID atau lempar exception jika tidak ditemukan
             $course = Course::findOrFail($id);
     
-            // Hapus course yang akan otomatis menghapus chapters dan videos
             $course->delete();
     
             return new CourseResource(true, 'Course deleted successfully', null);
         } catch (ModelNotFoundException $e) {
-            return new CourseResource(false, 'Failed to delete course because ' . $e ,  null);
+            return new CourseResource(false, 'Failed to delete course because ' . $e , null);
         }
     }
 }

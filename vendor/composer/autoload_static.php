@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6
+class ComposerStaticInitdbab631cafb45cd4b7a93ba829f8a001
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -564,8 +564,6 @@ class ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6
         'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
         'App\\Models\\Course' => __DIR__ . '/../..' . '/app/Models/Course.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
-        'App\\Models\\chapter' => __DIR__ . '/../..' . '/app/Models/chapter.php',
-        'App\\Models\\video' => __DIR__ . '/../..' . '/app/Models/video.php',
         'App\\Output\\Concerns\\InteractsWithSymbols' => __DIR__ . '/..' . '/laravel/pint/app/Output/Concerns/InteractsWithSymbols.php',
         'App\\Output\\ProgressOutput' => __DIR__ . '/..' . '/laravel/pint/app/Output/ProgressOutput.php',
         'App\\Output\\SummaryOutput' => __DIR__ . '/..' . '/laravel/pint/app/Output/SummaryOutput.php',
@@ -698,8 +696,17 @@ class ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6
         'Cron\\HoursField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/HoursField.php',
         'Cron\\MinutesField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MinutesField.php',
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
+        'Database\\Factories\\CategoryFactory' => __DIR__ . '/../..' . '/database/factories/CategoryFactory.php',
+        'Database\\Factories\\ChapterFactory' => __DIR__ . '/../..' . '/database/factories/ChapterFactory.php',
+        'Database\\Factories\\CourseFactory' => __DIR__ . '/../..' . '/database/factories/CourseFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
+        'Database\\Factories\\VideoFactory' => __DIR__ . '/../..' . '/database/factories/VideoFactory.php',
+        'Database\\Seeders\\CategorySeeder' => __DIR__ . '/../..' . '/database/seeders/CategorySeeder.php',
+        'Database\\Seeders\\ChapterSeeder' => __DIR__ . '/../..' . '/database/seeders/ChapterSeeder.php',
+        'Database\\Seeders\\CourseSeeder' => __DIR__ . '/../..' . '/database/seeders/CourseSeeder.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\UserSeeder' => __DIR__ . '/../..' . '/database/seeders/UserSeeder.php',
+        'Database\\Seeders\\VideoSeeder' => __DIR__ . '/../..' . '/database/seeders/VideoSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
@@ -6915,9 +6922,9 @@ class ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit743a1d76376a723dbdfe04e41469e4c6::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitdbab631cafb45cd4b7a93ba829f8a001::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitdbab631cafb45cd4b7a93ba829f8a001::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitdbab631cafb45cd4b7a93ba829f8a001::$classMap;
 
         }, null, ClassLoader::class);
     }
