@@ -49,4 +49,16 @@ class Course extends Model
     {
         return $this->hasMany(Chapter::class);
     }
+
+    public function users()
+{
+    return $this->belongsToMany(User::class, 'course_user');
+}
+
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
+
+
 }

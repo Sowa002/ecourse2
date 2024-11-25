@@ -2,21 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Video extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'chapter_id',
-        'title',
-        'url',
-    ];
+    protected $fillable = ['video_number', 'video_title', 'video_url', 'video_description', 'is_premium', 'chapter_id'];
 
-    public function chapter(): BelongsTo
+    public function chapter()
     {
         return $this->belongsTo(Chapter::class);
     }

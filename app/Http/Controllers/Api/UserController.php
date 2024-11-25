@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\CourseResource;
 
 class UserController extends Controller
 {
@@ -33,6 +34,41 @@ class UserController extends Controller
             return response()->json(['roles' => $roles], 200);
         } catch (\Exception $e) {
             Log::error('Error fetching roles: ' . $e->getMessage());
+            return response()->json(['message' => 'Internal Server Error'], 500);
+        }
+    }
+
+    // Method to display purchased courses
+    public function purchasedCourses(Request $request)
+    {
+        Log::info('Fetching purchased courses for user: ', ['user_id' => $request->user()->id]);
+
+        try {
+            $user = $request->user();
+            $courses = $user->courses()->with('category')->get();
+
+            $data = $courses->map(function ($course) {
+                return [
+                    'id' => $course->id,
+                    'course_code' => $course->course_code,
+                    'class_name' => $course->class_name,
+                    'description' => $course->description,
+                    'level' => $course->level,
+                    'price' => $course->price,
+                    'premium' => $course->premium,
+                    'category' => [
+                        'id' => $course->category->id,
+                        'category_name' => $course->category->category_name,
+                    ],
+                    'created_at' => $course->created_at,
+                    'updated_at' => $course->updated_at,
+                ];
+            });
+
+            Log::info('Purchased courses retrieved successfully');
+            return new CourseResource(true, 'Purchased courses retrieved successfully', $data);
+        } catch (\Exception $e) {
+            Log::error('Error fetching purchased courses: ' . $e->getMessage());
             return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }

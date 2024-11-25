@@ -6,8 +6,8 @@ use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
@@ -46,7 +46,8 @@ class CourseController extends Controller
 
     public function show($id)
     {
-        $course = Course::with(['category', 'chapters.videos'])->findOrFail($id);
+        $course = Course::with(['category', 'chapters.videos', 'comments.user'])->findOrFail($id);
+        $user = request()->user();
 
         $data = [
             'id' => $course->id,
@@ -62,18 +63,30 @@ class CourseController extends Controller
             ],
             'created_at' => $course->created_at,
             'updated_at' => $course->updated_at,
-            'chapters' => $course->chapters->map(function ($chapter) {
+            'chapters' => $course->chapters->map(function ($chapter) use ($user, $course) {
                 return [
                     'id' => $chapter->id,
                     'chapter_number' => $chapter->chapter_number,
                     'chapter_name' => $chapter->chapter_name,
-                    'videos' => $chapter->videos->map(function ($video) {
+                    'videos' => $user && $user->courses->contains($course) ? $chapter->videos->map(function ($video) {
                         return [
                             'id' => $video->id,
                             'video_title' => $video->title,
                             'video_url' => $video->url,
                         ];
-                    }),
+                    }) : [], // Return an empty array if the user hasn't purchased the course
+                ];
+            }),
+            'comments' => $course->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'user' => [
+                        'id' => $comment->user->id,
+                        'name' => $comment->user->name,
+                    ],
+                    'comment' => $comment->comment,
+                    'rating' => $comment->rating,
+                    'created_at' => $comment->created_at,
                 ];
             }),
         ];

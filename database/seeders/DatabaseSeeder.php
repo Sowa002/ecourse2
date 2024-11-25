@@ -22,11 +22,12 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->call([
-            UserSeeder::class,
             CategorySeeder::class,
             CourseSeeder::class,
             ChapterSeeder::class,
             VideoSeeder::class,
+            RoleSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }
