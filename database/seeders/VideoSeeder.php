@@ -5,15 +5,26 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Video;
 use App\Models\Chapter;
+use Faker\Factory as Faker;
 
 class VideoSeeder extends Seeder
 {
     public function run()
     {
-        Chapter::all()->each(function ($chapter) {
-            Video::factory()->count(5)->create([
-                'chapter_id' => $chapter->id,
-            ]);
-        });
+        $faker = Faker::create();
+        $chapters = Chapter::all();
+
+        foreach ($chapters as $chapter) {
+            for ($i = 1; $i <= 3; $i++) {
+                Video::create([
+                    'video_number' => $i,
+                    'video_title' => $faker->sentence,
+                    'video_url' => $faker->url,
+                    'video_description' => $faker->paragraph,
+                    'is_premium' => false,
+                    'chapter_id' => $chapter->id,
+                ]);
+            }
+        }
     }
 }

@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Course;
-use App\Models\Purchase;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CourseController extends Controller
 {
@@ -47,15 +46,7 @@ class CourseController extends Controller
     public function show($id)
     {
         $course = Course::with(['category', 'chapters.videos', 'comments.user'])->findOrFail($id);
-        $user = Auth::user();
-
-        $hasPurchased = false;
-        if ($user) {
-            $hasPurchased = Purchase::where('user_id', $user->id)
-                                    ->where('course_id', $course->id)
-                                    ->where('status', 'completed')
-                                    ->exists();
-        }
+        $user = request()->user();
 
         $data = [
             'id' => $course->id,
@@ -71,12 +62,12 @@ class CourseController extends Controller
             ],
             'created_at' => $course->created_at,
             'updated_at' => $course->updated_at,
-            'chapters' => $course->chapters->map(function ($chapter) use ($hasPurchased) {
+            'chapters' => $course->chapters->map(function ($chapter) use ($user, $course) {
                 return [
                     'id' => $chapter->id,
                     'chapter_number' => $chapter->chapter_number,
                     'chapter_name' => $chapter->chapter_name,
-                    'videos' => $chapter->videos->map(function ($video) use ($hasPurchased, $chapter) {
+                    'videos' => $chapter->videos->map(function ($video) use ($user, $course, $chapter) {
                         if ($chapter->chapter_number == 1 && $video->video_number == 1) {
                             // First video of the first chapter is public
                             return [
@@ -84,7 +75,7 @@ class CourseController extends Controller
                                 'video_title' => $video->video_title,
                                 'video_url' => $video->video_url,
                             ];
-                        } elseif ($hasPurchased) {
+                        } elseif ($user && $user->courses->contains($course->id)) {
                             // Other videos are only visible to users who have purchased the course
                             return [
                                 'id' => $video->id,
@@ -188,33 +179,4 @@ class CourseController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        $course = Course::findOrFail($id);
-
-        $course->update([
-            'class_name' => $request->class_name,
-            'description' => $request->description,
-            'level' => $request->level,
-            'price' => $request->price,
-            'premium' => $request->premium,
-            'category_id' => $request->category_id,
-        ]);
-
-        return new CourseResource(true, 'Course updated successfully', $course);
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $course = Course::findOrFail($id);
-
-            $course->delete();
-
-            return new CourseResource(true, 'Course deleted successfully', null);
-        } catch (ModelNotFoundException $e) {
-            return new CourseResource(false, 'Failed to delete course because ' . $e , null);
-        }
-    }
-}
+            return response()->json

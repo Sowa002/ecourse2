@@ -15,4 +15,8 @@ class Video extends Model
     {
         return $this->belongsTo(Chapter::class);
     }
+    public function users() 
+    {
+        return $this->belongsToMany(User::class, 'user_videos')->withPivot('watched')->withTimestamps(); 
+    }
 }

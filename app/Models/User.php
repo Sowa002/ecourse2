@@ -28,14 +28,24 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function courses()
+public function purchases() 
+{ 
+    return $this->hasMany(Purchase::class);
+}
+
+public function courses()
 {
-    return $this->belongsToMany(Course::class, 'course_user');
+    return $this->belongsToMany(Course::class, 'purchases')->withTimestamps();
 }
 
 public function comments()
 {
     return $this->hasMany(Comment::class);
+}
+
+public function videos()
+{
+    return $this->belongsToMany(Video::class, 'user_videos')->withPivot('watched')->withTimestamps();
 }
 
 

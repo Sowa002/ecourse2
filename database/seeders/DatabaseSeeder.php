@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             VideoSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+            PurchaseSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }
