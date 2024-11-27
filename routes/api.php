@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\PurchaseController;
 Route::get('courses', [CourseController::class, 'index']);
 Route::get('courses/{id}', [CourseController::class, 'showWithoutAuth']);
 Route::get('/courses/search/{class_name}', [CourseController::class, 'searchByClassName']);
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{id}', [CategoryController::class, 'show']);
 
 // Authentication routes
 Route::post('/register', [AuthController::class, 'register']);
