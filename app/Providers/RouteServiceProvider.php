@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Illuminate\Http\Request;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -11,7 +15,27 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        $this->configureRateLimiting();
+
         parent::boot();
+
+        // Register the Sanctum middleware
+        $this->registerRouteMiddleware();
+    }
+
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return $request->user()
+                        ? Limit::perMinute(60)->by($request->user()->id)
+                        : Limit::perMinute(60)->by($request->ip());
+        });
+    }
+
+    protected function registerRouteMiddleware()
+    {
+        // Adding the middleware alias
+        $this->app['router']->aliasMiddleware('auth:sanctum', EnsureFrontendRequestsAreStateful::class);
     }
 
     public function map()

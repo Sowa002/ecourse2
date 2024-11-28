@@ -11,9 +11,10 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\PurchaseController;
 
+
 // Public routes
 Route::get('courses', [CourseController::class, 'index']);
-Route::get('courses/{id}', [CourseController::class, 'showWithoutAuth']);
+Route::get('courses/{id}', [CourseController::class, 'show']);
 Route::get('/courses/search/{class_name}', [CourseController::class, 'searchByClassName']);
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
@@ -28,7 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::get('courses/{id}', [CourseController::class, 'show']); // This route requires authentication
     Route::post('/purchase-course/{id}', [PurchaseController::class, 'purchaseCourse']);
     Route::get('/purchased-courses', [UserController::class, 'purchasedCourses']);
     Route::post('/courses/{id}/comments', [CommentController::class, 'store']);

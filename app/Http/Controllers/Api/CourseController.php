@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\Sanctum;
 
 class CourseController extends Controller
 {
@@ -46,8 +48,23 @@ class CourseController extends Controller
 
     public function show($id)
     {
+        $token = request()->bearerToken();
+        Log::info('Bearer Token:', ['token' => $token]);
+
+        if ($token) {
+            $personalAccessToken = Sanctum::personalAccessTokenModel()::findToken($token);
+
+            if ($personalAccessToken) {
+                Log::info('Personal Access Token Found:', ['user_id' => $personalAccessToken->tokenable_id]);
+                auth()->loginUsingId($personalAccessToken->tokenable_id);
+            } else {
+                Log::info('Invalid Personal Access Token');
+            }
+        }
+
         $course = Course::with(['category', 'chapters.videos', 'comments.user'])->findOrFail($id);
         $user = Auth::user();
+        Log::info('Authenticated User:', ['user' => $user]);
 
         $hasPurchased = false;
         if ($user) {
@@ -55,6 +72,7 @@ class CourseController extends Controller
                                     ->where('course_id', $course->id)
                                     ->where('status', 'completed')
                                     ->exists();
+            Log::info('Has Purchased:', ['hasPurchased' => $hasPurchased]);
         }
 
         $data = [
@@ -78,14 +96,12 @@ class CourseController extends Controller
                     'chapter_name' => $chapter->chapter_name,
                     'videos' => $chapter->videos->map(function ($video) use ($hasPurchased, $chapter) {
                         if ($chapter->chapter_number == 1 && $video->video_number == 1) {
-                            // First video of the first chapter is public
                             return [
                                 'id' => $video->id,
                                 'video_title' => $video->video_title,
                                 'video_url' => $video->video_url,
                             ];
                         } elseif ($hasPurchased) {
-                            // Other videos are only visible to users who have purchased the course
                             return [
                                 'id' => $video->id,
                                 'video_title' => $video->video_title,
@@ -95,7 +111,7 @@ class CourseController extends Controller
                             return null;
                         }
                     })->filter(function ($video) {
-                        return $video !== null; // Filter out null values
+                        return $video !== null;
                     }),
                 ];
             }),
@@ -115,7 +131,7 @@ class CourseController extends Controller
 
         return new CourseResource(true, 'Course retrieved successfully', $data);
     }
-
+    
     public function searchByClassName($class_name)
     {
         if (empty($class_name) || !is_string($class_name) || strlen($class_name) > 100) {
