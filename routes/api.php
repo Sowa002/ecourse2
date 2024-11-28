@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Route for creating payment transaction
-    Route::post('/courses/{id}/payment', [PaymentController::class, 'createTransaction']);
+    Route::post('/payment', [PaymentController::class, 'createTransaction']);
 });
 
 // Admin routes (if applicable)

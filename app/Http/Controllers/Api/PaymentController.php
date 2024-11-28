@@ -21,65 +21,67 @@ class PaymentController extends Controller
         Config::$is3ds = true;
     }
 
-    public function createTransaction(Request $request, $id)
-{
-    $request->validate([
-        'user' => 'required|array',
-        'user.name' => 'required|string',
-        'user.email' => 'required|email',
-        'purchase' => 'required|array',
-        'purchase.transaction_id' => 'required|string',
-    ]);
-
-    $user = $request->input('user');
-    $transactionId = $request->input('purchase.transaction_id');
-    $course = Course::find($id);
-
-    if (!$course) {
-        Log::error('Course not found', ['course_id' => $id]);
-        return response()->json(['message' => 'Course not found'], 404);
-    }
-
-    // Ensure gross_amount and price are integers
-    $grossAmount = intval($course->price);
-    $price = intval($course->price);
-
-    $params = [
-        'transaction_details' => [
-            'order_id' => $transactionId,
-            'gross_amount' => $grossAmount,
-        ],
-        'customer_details' => [
-            'first_name' => $user['name'],
-            'email' => $user['email'],
-        ],
-        'item_details' => [
-            [
-                'id' => $course->id,
-                'price' => $price,
-                'quantity' => 1,
-                'name' => $course->class_name,
-            ],
-        ],
-    ];
-
-    Log::info('Midtrans transaction parameters', $params);
-
-    try {
-        $snapToken = Snap::getSnapToken($params);
-        $snapTokenExpiry = Carbon::now()->addMinutes(30)->setTimezone('Asia/Jakarta'); // Set expiry time in local timezone
-        Log::info('Snap token received', ['snap_token' => $snapToken]);
-
-        return response()->json([
-            'snap_token' => $snapToken,
-            'snap_token_expiry' => $snapTokenExpiry
+    public function createTransaction(Request $request)
+    {
+        $request->validate([
+            'user' => 'required|array',
+            'user.name' => 'required|string',
+            'user.email' => 'required|email',
+            'purchase' => 'required|array',
+            'purchase.course_id' => 'required|integer',
+            'purchase.transaction_id' => 'required|string',
         ]);
-    } catch (\Exception $e) {
-        Log::error('Unable to create transaction', ['error' => $e->getMessage(), 'params' => $params]);
-        return response()->json(['message' => 'Unable to create transaction'], 500);
-    }
-}
 
+        $user = $request->input('user');
+        $purchase = $request->input('purchase');
+        $transactionId = $purchase['transaction_id'];
+        $courseId = $purchase['course_id'];
+        $course = Course::find($courseId);
+
+        if (!$course) {
+            Log::error('Course not found', ['course_id' => $courseId]);
+            return response()->json(['message' => 'Course not found'], 404);
+        }
+
+        // Ensure gross_amount and price are integers
+        $grossAmount = intval($course->price);
+        $price = intval($course->price);
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $transactionId,
+                'gross_amount' => $grossAmount,
+            ],
+            'customer_details' => [
+                'first_name' => $user['name'],
+                'email' => $user['email'],
+            ],
+            'item_details' => [
+                [
+                    'id' => $course->id,
+                    'price' => $price,
+                    'quantity' => 1,
+                    'name' => $course->class_name,
+                ],
+            ],
+        ];
+
+        Log::info('Midtrans transaction parameters', $params);
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+            $snapTokenExpiry = Carbon::now()->addMinutes(30)->setTimezone('Asia/Jakarta'); // Set expiry time in local timezone
+            Log::info('Snap token received', ['snap_token' => $snapToken]);
+
+            return response()->json([
+                'snap_token' => $snapToken,
+                'snap_token_expiry' => $snapTokenExpiry
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Unable to create transaction', ['error' => $e->getMessage(), 'params' => $params]);
+            return response()->json(['message' => 'Unable to create transaction'], 500);
+        }
+    }
 
     public function handleWebhook(Request $request)
     {
