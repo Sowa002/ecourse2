@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\PurchaseController;
-
+use App\Http\Controllers\Api\PaymentController;
 
 // Public routes
 Route::get('courses', [CourseController::class, 'index']);
@@ -18,6 +18,9 @@ Route::get('courses/{id}', [CourseController::class, 'show']);
 Route::get('/courses/search/{class_name}', [CourseController::class, 'searchByClassName']);
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
+
+// Route for handling payment webhook (public)
+Route::post('/payment/webhook', [PaymentController::class, 'handleWebhook']);
 
 // Authentication routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -36,11 +39,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);
     Route::get('videos/{id}', [VideoController::class, 'show']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Route for creating payment transaction
+    Route::post('/courses/{id}/payment', [PaymentController::class, 'createTransaction']);
 });
 
 // Admin routes (if applicable)
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
+    Route::get('/check-roles/{user_id}', [UserController::class, 'checkRoles']);
     Route::post('categories', [CategoryController::class, 'store']);
     Route::put('categories/{id}', [CategoryController::class, 'update']);
     Route::delete('categories/{id}', [CategoryController::class, 'destroy']);

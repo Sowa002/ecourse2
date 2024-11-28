@@ -24,11 +24,12 @@ class UserController extends Controller
         }
     }
     
-    public function checkRoles(User $user)
+    public function checkRoles($user_id)
     {
-        Log::info('Checking roles for user: ', ['user_id' => $user->id]);
+        Log::info('Checking roles for user: ', ['user_id' => $user_id]);
 
         try {
+            $user = User::findOrFail($user_id);
             $roles = $user->getRoleNames(); // Get all roles of the user
             Log::info('Roles retrieved successfully for user', ['roles' => $roles]);
             return response()->json(['roles' => $roles], 200);
@@ -45,7 +46,7 @@ class UserController extends Controller
 
         try {
             $user = $request->user();
-            $courses = $user->courses()->with('category')->get();
+            $courses = $user->courses()->wherePivot('status', 'completed')->with('category')->get();
 
             $data = $courses->map(function ($course) {
                 return [
