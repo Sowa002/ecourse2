@@ -87,10 +87,18 @@ class PaymentController extends Controller
     {
         Log::info('Webhook received', $request->all());
     
-        $transactionId = $request->input('transaction_id');
-        $transactionStatus = $request->input('transaction_status');
-        $orderId = $request->input('order_id');
+        // Validasi request
+        $validated = $request->validate([
+            'transaction_id' => 'required|string',
+            'transaction_status' => 'required|string',
+            'order_id' => 'required|string'
+        ]);
     
+        $transactionId = $validated['transaction_id'];
+        $transactionStatus = $validated['transaction_status'];
+        $orderId = $validated['order_id'];
+    
+        // Cari purchase berdasarkan transaction_id
         $purchase = Purchase::where('transaction_id', $transactionId)->first();
     
         if (!$purchase) {
@@ -100,14 +108,18 @@ class PaymentController extends Controller
     
         Log::info('Transaction status', ['transaction_status' => $transactionStatus]);
     
-        if ($transactionStatus === 'settlement') {
-            $purchase->status = 'completed';
-            $purchase->save();
-            Log::info('Purchase status updated to completed', ['purchase_id' => $purchase->id]);
-        } else {
-            Log::info('Transaction not completed', ['transaction_status' => $transactionStatus]);
+        // Update status pembelian berdasarkan transaction_status
+        switch ($transactionStatus) {
+            case 'settlement':
+                $purchase->status = 'completed';
+                $purchase->save();
+                Log::info('Purchase status updated to completed', ['purchase_id' => $purchase->id]);
+                return response()->json(['message' => 'Purchase status updated to completed'], 200);
+            default:
+                Log::info('Transaction not completed', ['transaction_status' => $transactionStatus]);
+                return response()->json(['message' => 'Transaction not completed'], 400);
         }
-    
-        return response()->json(['message' => 'Webhook handled successfully'], 200);
     }
+    
+    
 }
