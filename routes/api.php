@@ -22,15 +22,13 @@ Route::get('categories/{id}', [CategoryController::class, 'show']);
 // Route for handling payment webhook (public)
 Route::post('/payment/webhook', [PaymentController::class, 'handleWebhook']);
 
-// Authentication routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// Authentication routes (No auth middleware here)
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user', [AuthController::class, 'getUser']);
 
     Route::post('/purchase-course/{id}', [PurchaseController::class, 'purchaseCourse']);
     Route::get('/purchased-courses', [UserController::class, 'purchasedCourses']);
@@ -45,18 +43,20 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Admin routes (if applicable)
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/check-roles/{user_id}', [UserController::class, 'checkRoles']);
-    Route::post('categories', [CategoryController::class, 'store']);
-    Route::put('categories/{id}', [CategoryController::class, 'update']);
-    Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
-    Route::post('courses', [CourseController::class, 'store']);
-    Route::put('courses/{id}', [CourseController::class, 'update']);
-    Route::delete('courses/{id}', [CourseController::class, 'destroy']);
-    Route::post('chapters', [ChapterController::class, 'store']);
-    Route::put('chapters/{chapter_id}', [ChapterController::class, 'update']);
-    Route::post('videos', [VideoController::class, 'store']);
-    Route::put('videos/{id}', [VideoController::class, 'update']);
-    Route::delete('videos/{id}', [VideoController::class, 'destroy']);
+Route::middleware(['auth:api'])->group(function () {
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/check-roles/{user_id}', [UserController::class, 'checkRoles']);
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::put('categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
+        Route::post('courses', [CourseController::class, 'store']);
+        Route::put('courses/{id}', [CourseController::class, 'update']);
+        Route::delete('courses/{id}', [CourseController::class, 'destroy']);
+        Route::post('chapters', [ChapterController::class, 'store']);
+        Route::put('chapters/{chapter_id}', [ChapterController::class, 'update']);
+        Route::post('videos', [VideoController::class, 'store']);
+        Route::put('videos/{id}', [VideoController::class, 'update']);
+        Route::delete('videos/{id}', [VideoController::class, 'destroy']);
+    });
 });

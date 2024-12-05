@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -20,12 +20,10 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin123'),
             'role_id' => $adminRole->id, // Set role_id explicitly
         ]);
-        $admin->assignRole($adminRole);
 
         $users = User::factory()->count(10)->create();
         foreach ($users as $user) {
             $user->update(['role_id' => $userRole->id]); // Set role_id explicitly
-            $user->assignRole($userRole);
         }
     }
 }
