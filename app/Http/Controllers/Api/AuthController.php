@@ -12,11 +12,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api', ['except' => ['login', 'register']]);
-    // }
-
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -36,7 +31,8 @@ class AuthController extends Controller
             'role_id' => 2 // Set default role_id ke 2 (user)
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        // Menambahkan custom claims pada token
+        $token = JWTAuth::claims(['user_id' => $user->id, 'email' => $user->email, 'role_id' => $user->role_id])->fromUser($user);
 
         return response()->json([
             'message' => 'Registration successful',
@@ -65,6 +61,9 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        // Menambahkan custom claims pada token
+        $token = JWTAuth::claims(['user_id' => $user->id, 'email' => $user->email, 'role_id' => $user->role_id])->attempt($credentials);
+
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
@@ -87,6 +86,11 @@ class AuthController extends Controller
     public function getUser(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        return response()->json($user);
+        $payload = JWTAuth::parseToken()->getPayload();
+
+        return response()->json([
+            'user' => $user,
+            'claims' => $payload->toArray()
+        ]);
     }
 }
